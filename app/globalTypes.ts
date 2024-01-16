@@ -13,3 +13,23 @@ export interface DataType {
   hopefulIncomeTotal?: number | FormDataEntryValue | null;
   difference?: number | FormDataEntryValue | null;
 }
+
+export interface Errors {
+  type?: string | null;
+  idealHourlyRate?: string | null;
+  gigPayment?: string | null;
+  gigHours?: string | null;
+  mileage?: string | null;
+  babysittingHours?: string | null;
+  babysittingHourlyRate?: string | null;
+  gasCost?: string | null;
+  babysittingCost?: string | null;
+  totalCost?: string | null;
+  hopefulIncomePreExpense?: string | null;
+  hopefulIncomeTotal?: string | null;
+  difference?: string | null;
+}
+
+export interface FetcherData {
+  errors?: Errors;
+}

@@ -2,6 +2,8 @@ import { Dialog, Transition } from "@headlessui/react";
 import { useFetcher } from "@remix-run/react";
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react";
 
+import { Errors, FetcherData } from "~/globalTypes";
+
 interface ShouldITakeThisProps {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>;
@@ -11,16 +13,16 @@ const ShouldITakeThisForm = ({
   showModal,
   setShowModal,
 }: ShouldITakeThisProps) => {
-  const fetcher = useFetcher();
-  const [errors, setErrors] = useState(null);
+  const fetcher = useFetcher<FetcherData>();
+  const [errors, setErrors] = useState<Errors>({});
 
   const closeModal = () => {
     setShowModal(false);
-    setErrors(null);
+    setErrors({});
   };
 
   useEffect(() => {
-    setErrors(fetcher?.data?.errors);
+    setErrors(fetcher?.data?.errors ?? {});
   }, [fetcher?.data?.errors]);
 
   return (
@@ -42,9 +44,8 @@ const ShouldITakeThisForm = ({
             leave="ease-in duration-200"
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
-            className="z-50" // Ensure this is a higher z-index than Dialog.Overlay
           >
-            <div className="bg-white rounded-lg  w-full sm:w-3/4 sm:max-w-2xl p-16">
+            <div className="bg-white rounded-lg  w-full sm:w-3/4 sm:max-w-2xl p-16 z-50">
               <Dialog.Title
                 id="modal-title"
                 className="text-xl font-bold mb-8 text-center"

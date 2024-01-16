@@ -180,7 +180,6 @@ export default function Index() {
 
   useEffect(() => {
     if (fetchers[0]?.state == "submitting") {
-      console.log(fetchers[0]?.state);
       setImg(answerImage);
     }
     if (fetchers[0]?.data?.data) {
