@@ -8,7 +8,7 @@ test("HMTC form renders", async ({ page }) => {
   await expect(
     page.getByRole("heading", {
       name: "How much should I charge for this gig?",
-    })
+    }),
   ).toBeVisible();
 });
 
@@ -58,16 +58,21 @@ test("HMTC form submits", async ({ page }) => {
     .getByLabel("Submit to find out how much you should charge for this gig")
     .click();
   //get formdata from post request
-  const formData = await page.locator("#form").evaluate((form) => {
-    const formData = new FormData(form);
-    return Object.fromEntries(formData.entries());
-  });
+  const formData = await page.locator("#form").evaluate(() => {
+    const form = document.getElementById("form") as HTMLFormElement | null;
 
-  await expect(formData.idealHourlyRate).toEqual("75");
-  await expect(formData.gigHours).toEqual("3");
-  await expect(formData.mileage).toEqual("8");
-  await expect(formData.babysittingHours).toEqual("4");
-  await expect(formData.babysittingHourlyRate).toEqual("15");
+    if (form) {
+      const formData = new FormData(form);
+      return Object.fromEntries(formData.entries());
+    }
+
+    return null; // Handle the case when the form is not found
+  });
+  await expect(formData?.idealHourlyRate).toEqual("75");
+  await expect(formData?.gigHours).toEqual("3");
+  await expect(formData?.mileage).toEqual("8");
+  await expect(formData?.babysittingHours).toEqual("4");
+  await expect(formData?.babysittingHourlyRate).toEqual("15");
 });
 
 test("HMTC validation", async ({ page }) => {
@@ -118,34 +123,34 @@ test("HMTC accessibility", async ({ page }) => {
   // Check ARIA roles
   const idealHourlyRateErrorARIA = await page.$eval(
     "#idealHourlyRateError",
-    (error) => error.getAttribute("role")
+    (error) => error.getAttribute("role"),
   );
   expect(idealHourlyRateErrorARIA).toBe("alert");
 
   const gigHoursErrorARIA = await page.$eval("#gigHoursError", (error) =>
-    error.getAttribute("role")
+    error.getAttribute("role"),
   );
   expect(gigHoursErrorARIA).toBe("alert");
 
   //  Check Labels
   const idealHourlyRateLabel = await page.$eval("#idealHourlyRate", (input) =>
-    input.getAttribute("aria-labelledby")
+    input.getAttribute("aria-labelledby"),
   );
   expect(idealHourlyRateLabel).toBeTruthy(); // Ensure label exists
 
   const gigHoursLabel = await page.$eval("#gigHours", (input) =>
-    input.getAttribute("aria-labelledby")
+    input.getAttribute("aria-labelledby"),
   );
   expect(gigHoursLabel).toBeTruthy(); // Ensure label exists
 
   const babysittingHoursLabel = await page.$eval("#babysittingHours", (input) =>
-    input.getAttribute("aria-labelledby")
+    input.getAttribute("aria-labelledby"),
   );
   expect(babysittingHoursLabel).toBeTruthy(); // Ensure label exists
 
   const babysittingHourlyRateLabel = await page.$eval(
     "#babysittingHourlyRate",
-    (input) => input.getAttribute("aria-labelledby")
+    (input) => input.getAttribute("aria-labelledby"),
   );
   expect(babysittingHourlyRateLabel).toBeTruthy(); // Ensure label exists
 
