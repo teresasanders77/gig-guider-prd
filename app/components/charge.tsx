@@ -1,10 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
+
 import { DataType } from "../globalTypes";
 
-type ChargeProps = {
+interface ChargeProps {
   data: DataType;
   setShowModal: Dispatch<SetStateAction<boolean>>;
-};
+}
 
 const Charge = ({ data, setShowModal }: ChargeProps) => {
   const total = data.hopefulIncomeTotal ?? 0;
