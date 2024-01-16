@@ -1,141 +1,267 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import { json, type MetaFunction, ActionFunction } from "@remix-run/node";
+import { useFetchers } from "@remix-run/react";
+import { useEffect, useState } from "react";
 
-import { useOptionalUser } from "~/utils";
+import answerImage from "../../public/img/GG_answer.webp";
+import desktopImage from "../../public/img/GG_landingPage.webp";
+import mobileImage from "../../public/img/GG_mobile.webp";
+import Answer from "../components/answer";
+import Charge from "../components/charge";
+import { DataType } from "../globalTypes";
+import Details from "../modals/details";
+import ShouldITakeThisForm from "../modals/shouldITakeThisForm";
+import WhatToChargeForm from "../modals/whatToChargeForm";
 
-export const meta: MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Gig-Guider" },
+    { name: "description", content: "Welcome to the Gig Guider!" },
+  ];
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const { _action } = Object.fromEntries(formData);
+  const errors: Record<string, string> = {};
+  const data: DataType = {};
+  const idealHourlyRate = formData.get("idealHourlyRate");
+  const gigPayment = formData.get("gigPayment");
+  const gigHours = formData.get("gigHours");
+  const mileage = formData.get("mileage") ?? 0;
+  const babysittingHours = formData.get("babysittingHours") ?? 0;
+  const babysittingHourlyRate = formData.get("babysittingHourlyRate") ?? 0;
+  data.idealHourlyRate = Number(idealHourlyRate);
+  data.gigPayment = Number(gigPayment);
+  data.gigHours = Number(gigHours);
+  data.mileage = Number(mileage);
+  data.babysittingHours = Number(babysittingHours);
+  data.babysittingHourlyRate = Number(babysittingHourlyRate);
+
+  const gasCost = Number(Number(mileage) * 2) * 0.67;
+  data.gasCost = gasCost;
+
+  const babysittingCost =
+    Number(babysittingHours) * Number(babysittingHourlyRate);
+  data.babysittingCost = babysittingCost;
+
+  const totalCost = gasCost + babysittingCost;
+  data.totalCost = totalCost;
+
+  const hopefulIncomePreExpense = Number(idealHourlyRate) * Number(gigHours);
+  data.hopefulIncomePreExpense = hopefulIncomePreExpense;
+
+  const hopefulIncomeTotal = hopefulIncomePreExpense + totalCost;
+  data.hopefulIncomeTotal = hopefulIncomeTotal;
+
+  if (!idealHourlyRate) {
+    errors.idealHourlyRate = "Required";
+  } else if (Number(idealHourlyRate) < 1) {
+    errors.idealHourlyRate = "Must be greater than 0";
+  }
+
+  if (!gigHours) {
+    errors.gigHours = "Required";
+  } else if (Number(gigHours) < 1) {
+    errors.gigHours = "Must be greater than 0";
+  }
+
+  if (_action === "shouldITakeThis") {
+    data.type = "shouldITakeThis";
+
+    if (!gigPayment) {
+      errors.gigPayment = "Required";
+    } else if (Number(gigPayment) < 1) {
+      errors.gigPayment = "Must be greater than 0";
+    }
+    console.log("errors: ", errors);
+    if (Object.keys(errors).length > 0) {
+      return json({ errors });
+    }
+
+    const difference = Number(gigPayment) - hopefulIncomeTotal;
+    data.difference = difference;
+
+    let answer;
+    if (difference > 0) {
+      answer = "yes";
+    } else {
+      answer = "no";
+    }
+    return json({ answer: answer, data: data });
+  } else if (_action === "whatToCharge") {
+    data.type = "whatToCharge";
+    if (Object.keys(errors).length > 0) {
+      return json({ errors });
+    }
+    return json({ data });
+  }
+};
 
 export default function Index() {
-  const user = useOptionalUser();
-  return (
-    <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
-      <div className="relative sm:pb-16 sm:pt-8">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
-            <div className="absolute inset-0">
-              <img
-                className="h-full w-full object-cover"
-                src="https://user-images.githubusercontent.com/1500684/157774694-99820c51-8165-4908-a031-34fc371ac0d6.jpg"
-                alt="Sonic Youth On Stage"
-              />
-              <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
-            </div>
-            <div className="relative px-4 pb-8 pt-16 sm:px-6 sm:pb-14 sm:pt-24 lg:px-8 lg:pb-20 lg:pt-32">
-              <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-8xl lg:text-9xl">
-                <span className="block uppercase text-yellow-500 drop-shadow-md">
-                  Indie Stack
-                </span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
-                Check the README.md file for instructions on how to get this
-                project deployed.
-              </p>
-              <div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
-                {user ? (
-                  <Link
-                    to="/notes"
-                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
-                  >
-                    View Notes for {user.email}
-                  </Link>
-                ) : (
-                  <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">
-                    <Link
-                      to="/join"
-                      className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
-                    >
-                      Sign up
-                    </Link>
-                    <Link
-                      to="/login"
-                      className="flex items-center justify-center rounded-md bg-yellow-500 px-4 py-3 font-medium text-white hover:bg-yellow-600"
-                    >
-                      Log In
-                    </Link>
-                  </div>
-                )}
-              </div>
-              <a href="https://remix.run">
-                <img
-                  src="https://user-images.githubusercontent.com/1500684/158298926-e45dafff-3544-4b69-96d6-d3bcc33fc76a.svg"
-                  alt="Remix"
-                  className="mx-auto mt-16 w-full max-w-[12rem] md:max-w-[16rem]"
-                />
-              </a>
-            </div>
-          </div>
-        </div>
+  const [showButtons, toggleShowButtons] = useState(true);
+  const [screenWidth, setScreenWidth] = useState(761);
+  const [shouldITakeThisModal, setShouldITakeThisModal] = useState(false);
+  const [whatToChargeModal, setWhatToChargeModal] = useState(false);
+  const [detailsModal, setDetailsModal] = useState(false);
+  const [showAnswer, toggleShowAnswer] = useState(false);
+  const [showCharge, toggleShowCharge] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<DataType>({
+    type: null,
+    idealHourlyRate: null,
+    gigPayment: null,
+    gigHours: null,
+    gasCost: null,
+    mileage: null,
+    babysittingCost: null,
+    babysittingHours: null,
+    babysittingHourlyRate: null,
+    totalCost: null,
+    hopefulIncomePreExpense: null,
+    hopefulIncomeTotal: null,
+    difference: null,
+  });
+  const fetchers = useFetchers();
 
-        <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-          <div className="mt-6 flex flex-wrap justify-center gap-8">
-            {[
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764397-ccd8ea10-b8aa-4772-a99b-35de937319e1.svg",
-                alt: "Fly.io",
-                href: "https://fly.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764395-137ec949-382c-43bd-a3c0-0cb8cb22e22d.svg",
-                alt: "SQLite",
-                href: "https://sqlite.org",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764484-ad64a21a-d7fb-47e3-8669-ec046da20c1f.svg",
-                alt: "Prisma",
-                href: "https://prisma.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764276-a516a239-e377-4a20-b44a-0ac7b65c8c14.svg",
-                alt: "Tailwind",
-                href: "https://tailwindcss.com",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764454-48ac8c71-a2a9-4b5e-b19c-edef8b8953d6.svg",
-                alt: "Cypress",
-                href: "https://www.cypress.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772386-75444196-0604-4340-af28-53b236faa182.svg",
-                alt: "MSW",
-                href: "https://mswjs.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772447-00fccdce-9d12-46a3-8bb4-fac612cdc949.svg",
-                alt: "Vitest",
-                href: "https://vitest.dev",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772662-92b0dd3a-453f-4d18-b8be-9fa6efde52cf.png",
-                alt: "Testing Library",
-                href: "https://testing-library.com",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772934-ce0a943d-e9d0-40f8-97f3-f464c0811643.svg",
-                alt: "Prettier",
-                href: "https://prettier.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772990-3968ff7c-b551-4c55-a25c-046a32709a8e.svg",
-                alt: "ESLint",
-                href: "https://eslint.org",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157773063-20a0ed64-b9f8-4e0b-9d1e-0b65a3d4a6db.svg",
-                alt: "TypeScript",
-                href: "https://typescriptlang.org",
-              },
-            ].map((img) => (
-              <a
-                key={img.href}
-                href={img.href}
-                className="flex h-16 w-32 justify-center p-1 grayscale transition hover:grayscale-0 focus:grayscale-0"
-              >
-                <img alt={img.alt} src={img.src} className="object-contain" />
-              </a>
-            ))}
-          </div>
+  const [img, setImg] = useState(desktopImage);
+  const isClient = typeof window === "object";
+
+  useEffect(() => {
+    if (!isClient) {
+      return; // Do nothing if not running on the client side
+    }
+    setScreenWidth(window.innerWidth);
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isClient]);
+
+  useEffect(() => {
+    if (
+      screenWidth > 760 &&
+      img !== desktopImage &&
+      !showAnswer &&
+      !showCharge
+    ) {
+      setImg(desktopImage);
+    } else if (
+      screenWidth <= 760 &&
+      img !== mobileImage &&
+      !showAnswer &&
+      !showCharge
+    ) {
+      setImg(mobileImage);
+    } else if (showAnswer) {
+      setImg(answerImage);
+    }
+  }, [img, screenWidth, showAnswer, showCharge]);
+
+  useEffect(() => {
+    if (data.idealHourlyRate !== null) {
+      setShouldITakeThisModal(false);
+      setWhatToChargeModal(false);
+      setLoading(true);
+      toggleShowButtons(false);
+      setTimeout(() => {
+        setLoading(false);
+        if (data.type == "shouldITakeThis") {
+          toggleShowAnswer(true);
+        } else {
+          toggleShowCharge(true);
+        }
+      }, 3000);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (fetchers[0]?.state == "submitting") {
+      console.log(fetchers[0]?.state);
+      setImg(answerImage);
+    }
+    if (fetchers[0]?.data?.data) {
+      setData(fetchers[0]?.data?.data);
+    }
+  }, [fetchers]);
+
+  useEffect(() => {
+    shouldITakeThisModal || whatToChargeModal || loading
+      ? setImg(answerImage)
+      : setImg(desktopImage);
+  }, [shouldITakeThisModal, whatToChargeModal, loading]);
+
+  return (
+    <>
+      <div>
+        <h1 className="sr-only">The Gig Guider</h1>
+        <div
+          className="bg-cover bg-center bg-no-repeat overflow-hidden h-screen relative"
+          style={{ backgroundImage: `url(${img})` }}
+          aria-label="Gig Guider main image, hands on a crystal ball."
+        >
+          {loading ? (
+            <div className="flex justify-center items-center h-screen">
+              <div
+                className="rounded-full h-80 w-80 bg-gg-blue-900 animate-ping"
+                role="status"
+                aria-label="Loading answer..."
+              ></div>
+            </div>
+          ) : null}
+          <main className="my-0 mx-auto ">
+            {showButtons ? (
+              <div className="flex flex-col items-center justify-center mt-8 lg:flex-row lg:mt-0 lg:justify-between lg:w-3/6  xl:w-1/4 my-0 mx-auto h-screen">
+                <button
+                  onClick={() => {
+                    setShouldITakeThisModal(true);
+                  }}
+                  className="bg-[#001c50] hover:bg-[#00567a] text-white font-bold p-2 lg:py-2 lg:px-4 rounded hover:shadow-xl mt-2 lg:mt-0"
+                  aria-label="Open Should I take this modal"
+                >
+                  Should I take this?
+                </button>
+                <button
+                  onClick={() => {
+                    setWhatToChargeModal(true);
+                  }}
+                  className="bg-[#001c50] hover:bg-[#00567a] text-white font-bold p-2 lg:py-2 lg:px-4 rounded hover:shadow-xl mt-2 lg:mt-0"
+                  aria-label="Open How much should I charge modal"
+                >
+                  How much should I charge?
+                </button>
+              </div>
+            ) : null}
+            {showAnswer ? (
+              <div className="flex flex-col items-center justify-center mt-8 lg:flex-row lg:mt-0 lg:justify-between lg:w-3/6  xl:w-1/4 my-0 mx-auto h-screen">
+                <Answer data={data} setShowModal={setDetailsModal} />
+              </div>
+            ) : null}
+            {showCharge ? (
+              <div className="flex flex-col items-center justify-center mt-8 lg:flex-row lg:mt-0 lg:justify-between lg:w-3/6  xl:w-1/4 my-0 mx-auto h-screen">
+                <Charge data={data} setShowModal={setDetailsModal} />
+              </div>
+            ) : null}
+          </main>
         </div>
+        <ShouldITakeThisForm
+          showModal={shouldITakeThisModal}
+          setShowModal={setShouldITakeThisModal}
+        />
+        <WhatToChargeForm
+          showModal={whatToChargeModal}
+          setShowModal={setWhatToChargeModal}
+        />
+        <Details
+          showModal={detailsModal}
+          setShowModal={setDetailsModal}
+          data={data}
+          type={showAnswer ? "answer" : "charge"}
+        />
       </div>
-    </main>
+    </>
   );
 }
