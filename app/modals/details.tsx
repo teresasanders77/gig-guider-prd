@@ -53,7 +53,7 @@ const Details = ({ showModal, setShowModal, data, type }: DetailsProps) => {
             leaveTo="opacity-0 scale-95"
           >
             <div
-              className="bg-white rounded-lg w-full sm:w-3/4 sm:max-w-3xl p-16 z-50"
+              className="bg-white rounded-lg w-full sm:w-3/4 sm:max-w-3xl p-6 sm:p-16 z-50"
               aria-labelledby="details"
             >
               <Dialog.Title
