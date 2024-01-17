@@ -49,20 +49,20 @@ const Answer = ({ data, setShowModal }: AnswerProps) => {
   return (
     <>
       <div
-        className="flex flex-col items-center justify-center h-screen"
+        className="flex flex-col items-center justify-center h-screen w-[90%] sm:w-full"
         role="main"
       >
         {answer === "yes" ? (
           <>
             <h1
-              className="text-green-700 font-bold text-8xl"
+              className="text-green-700 font-bold text-6xl sm:text-8xl"
               aria-label="Yes, you should!"
               id="result"
             >
               YES!
             </h1>
             <h2
-              className="text-center mt-10 mb-10 font-bold text-2xl"
+              className="text-center mt-10 mb-10 font-bold text-lg sm:text-2xl"
               aria-label="Sassy reason for why you should"
             >
               {returnedResponse}

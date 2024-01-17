@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Dispatch, Fragment, SetStateAction } from "react";
+import { Dispatch, Fragment, SetStateAction, useEffect, useRef } from "react";
 
 import { DataType } from "../globalTypes";
 
@@ -11,9 +11,24 @@ interface DetailsProps {
 }
 
 const Details = ({ showModal, setShowModal, data, type }: DetailsProps) => {
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const closeModal = () => {
     setShowModal(false);
   };
+
+  useEffect(() => {
+    // Scroll to the top when the modal is shown
+    if (showModal) {
+      // Scroll to the element
+      if (titleRef.current) {
+        titleRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [showModal]);
+
   return (
     <Transition show={showModal} as={Fragment}>
       <Dialog
@@ -44,6 +59,7 @@ const Details = ({ showModal, setShowModal, data, type }: DetailsProps) => {
               <Dialog.Title
                 id="modal-title"
                 className="text-xl font-bold mb-8 text-center"
+                ref={titleRef}
               >
                 Should I Take This Gig?
               </Dialog.Title>

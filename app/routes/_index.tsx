@@ -198,7 +198,7 @@ export default function Index() {
       <div>
         <h1 className="sr-only">The Gig Guider</h1>
         <div
-          className="bg-cover bg-center bg-no-repeat overflow-hidden h-screen relative"
+          className="bg-cover bg-center bg-no-repeat overflow-y-hidden h-screen relative"
           style={{ backgroundImage: `url(${img})` }}
           aria-label="Gig Guider main image, hands on a crystal ball."
         >

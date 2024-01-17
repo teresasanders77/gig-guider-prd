@@ -12,17 +12,17 @@ const Charge = ({ data, setShowModal }: ChargeProps) => {
   return (
     <>
       <section
-        className="flex flex-col items-center justify-center h-screen"
+        className="flex flex-col items-center justify-center h-screen w-[90%] sm:w-full"
         role="main"
       >
         <h1
-          className="font-bold text-4xl text-center"
+          className="font-bold text-2xl sm:text-4xl text-center"
           aria-label="Recommendation Header"
         >
           We recommend you charge:
         </h1>
         <h2
-          className="text-center mt-10 mb-10 font-bold text-6xl text-green-700"
+          className="text-center mt-10 mb-10 font-bold text-4xl sm:text-6xl text-green-700"
           aria-label={`Recommended total amount is $${total}`}
           id="result"
         >
