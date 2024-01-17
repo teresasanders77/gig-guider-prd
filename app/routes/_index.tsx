@@ -188,7 +188,7 @@ export default function Index() {
   }, [fetchers]);
 
   useEffect(() => {
-    shouldITakeThisModal || whatToChargeModal || loading
+    !shouldITakeThisModal || !whatToChargeModal || loading
       ? setImg(answerImage)
       : setImg(desktopImage);
   }, [shouldITakeThisModal, whatToChargeModal, loading]);
