@@ -21,6 +21,7 @@ export const links: LinksFunction = () => [
     type: "text/javascript",
     async: true, // Use a type assertion here
     src: "https://www.googletagmanager.com/gtag/js?id=G-P2GD9HC0CJ",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any, // Type assertion
   {
     // Custom script for configuration
