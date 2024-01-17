@@ -16,6 +16,22 @@ import stylesheet from "~/tailwind.css";
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+  {
+    // Google Analytics script
+    type: "text/javascript",
+    async: true, // Use a type assertion here
+    src: "https://www.googletagmanager.com/gtag/js?id=G-P2GD9HC0CJ",
+  } as any, // Type assertion
+  {
+    // Custom script for configuration
+    type: "text/javascript",
+    innerHTML: `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-P2GD9HC0CJ');
+    `,
+  },
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
